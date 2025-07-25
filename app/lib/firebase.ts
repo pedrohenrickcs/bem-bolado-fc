@@ -4,12 +4,12 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBfMkhjncYeA5zIoWDSzdGStTxelnjAvgw",
-  authDomain: "bem-bolado-fc-66834.firebaseapp.com",
-  projectId: "bem-bolado-fc-66834",
-  storageBucket: "bem-bolado-fc-66834.firebasestorage.app",
-  messagingSenderId: "722681365581",
-  appId: "1:722681365581:web:5e443b88409332e4198804"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);

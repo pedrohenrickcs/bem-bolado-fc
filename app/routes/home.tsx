@@ -1,13 +1,18 @@
-import { onAuthStateChanged } from "firebase/auth";
-import { collection, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { Header } from "~/components/Header";
 import { LoginButton } from "~/components/LoginButton";
-import { MatchCard } from "~/components/Matchcard";
+import { MatchCard } from "~/components/MatchCard";
 import { auth, db } from "~/lib/firebase";
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [matches, setMatches] = useState<any[]>([]);
+
+  //   useEffect(() => {
+  //     seedMockMatches();
+  //   }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -25,24 +30,31 @@ export default function Home() {
     return () => unsub();
   }, []);
 
-  const handleVote = async (matchId: string, vote: string) => {
-    if (!user) return;
-    const matchRef = doc(db, "matches", matchId);
-    await updateDoc(matchRef, {
-      [`votes.${user.uid}`]: vote,
-    });
-    alert(`Voto registrado: ${vote}`);
-  };
+  //   const handleVote = async (matchId: string, vote: string) => {
+  //     if (!user) return;
+  //     const matchRef = doc(db, "matches", matchId);
+  //     await updateDoc(matchRef, {
+  //       [`votes.${user.uid}`]: vote,
+  //     });
+  //     alert(`Voto registrado: ${vote}`);
+  //   };
 
   if (!user) return <LoginButton />;
 
   return (
-    <div className="p-4 max-w-xl mx-auto space-y-4">
-      <h1 className="text-xl font-bold mb-4">Bem-vindo, {user.displayName}</h1>
-
-      {matches.map((m) => (
-        <MatchCard key={m.id} match={m} userId={user.uid} />
-      ))}
-    </div>
+    <>
+      <Header
+        user={{
+          name: user.displayName,
+          email: user.email,
+        }}
+        onLogout={() => signOut(auth)}
+      />
+      <div className="p-4 mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+        {matches.map((m) => (
+          <MatchCard key={m.id} match={m} userId={user.uid} />
+        ))}
+      </div>
+    </>
   );
 }

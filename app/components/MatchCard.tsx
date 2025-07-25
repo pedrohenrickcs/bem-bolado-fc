@@ -78,11 +78,17 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
           <VoteProgressBar
             label={`Vitória ${match.home_team}`}
             value={percentages.HOME}
+            count={tally.HOME}
           />
-          <VoteProgressBar label="Empate" value={percentages.DRAW} />
+          <VoteProgressBar
+            label="Empate"
+            value={percentages.DRAW}
+            count={tally.DRAW}
+          />
           <VoteProgressBar
             label={`Vitória ${match.away_team}`}
             value={percentages.AWAY}
+            count={tally.AWAY}
           />
         </div>
 
@@ -105,12 +111,23 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
   );
 }
 
-function VoteProgressBar({ label, value }: { label: string; value: number }) {
+function VoteProgressBar({
+  label,
+  value,
+  count,
+}: {
+  label: string;
+  value: number;
+  count: number;
+}) {
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-sm font-normal">
         <span>{label}</span>
-        <span>{value}%</span>
+        <span>
+          {value}%{" "}
+          <span className="text-xs text-muted-foreground">({count})</span>
+        </span>
       </div>
       <Progress value={value} />
     </div>

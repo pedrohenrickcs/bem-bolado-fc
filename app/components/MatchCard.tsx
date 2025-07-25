@@ -1,4 +1,5 @@
 import { doc, updateDoc } from "firebase/firestore";
+import { Clock } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Progress } from "~/components/ui/progress";
@@ -46,7 +47,10 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
     <Card className="bg-card shadow-sm border rounded-xl">
       <CardHeader className="pb-2">
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{new Date(match.date).toLocaleString()}</span>
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            <span>{new Date(match.date).toLocaleString()}</span>
+          </div>
           <Badge variant="outline">{match.championship ?? "Brasileirão"}</Badge>
         </div>
       </CardHeader>

@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 // import { FcGoogle } from "react-icons/fc";
 
-export function LoginButton() {
+export function Login() {
   const handleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -18,7 +18,7 @@ export function LoginButton() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-200 via-yellow-100 to-blue-100 animate-fade-in">
-      <Card className="w-full max-w-sm shadow-xl border border-border">
+      <Card className="w-full max-w-sm shadow-xl border border-border m-4">
         <CardHeader>
           <CardTitle className="text-xl text-center font-bold text-primary">
             Bem-vindo ao ⚽ Bolado FC

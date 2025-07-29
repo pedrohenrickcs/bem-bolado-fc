@@ -35,7 +35,7 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
   };
 
   async function handleVote(vote: Vote) {
-    if (isClosed) return;
+    // if (isClosed) return;
     const ref = doc(db, "matches", match.id);
     await updateDoc(ref, {
       [`votes.${userId}`]: vote,
@@ -97,7 +97,7 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
               key={v}
               variant={userVote === v ? "default" : "outline"}
               size="sm"
-              disabled={isClosed}
+              //   disabled={isClosed}
               onClick={() => handleVote(v)}
               className="text-xs py-2"
             >

@@ -6,15 +6,14 @@ import { Header } from "~/components/Header";
 import { Login } from "~/components/Login";
 import { MatchCard } from "~/components/MatchCard";
 import { auth, db } from "~/lib/firebase";
-import { seedMockMatches } from "~/lib/mockMatches";
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [matches, setMatches] = useState<any[]>([]);
 
-  useEffect(() => {
-    seedMockMatches();
-  }, []);
+  //   useEffect(() => {
+  //     seedMockMatches();
+  //   }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

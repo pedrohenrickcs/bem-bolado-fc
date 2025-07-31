@@ -11,10 +11,6 @@ export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [matches, setMatches] = useState<any[]>([]);
 
-  //   useEffect(() => {
-  //     seedMockMatches();
-  //   }, []);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -23,22 +19,18 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "matches"), (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setMatches(data);
+    const unsubscribe = onSnapshot(collection(db, "matches"), (snapshot) => {
+      const dataMatches = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      console.log("dataMatches", dataMatches);
+      setMatches(dataMatches);
     });
 
-    return () => unsub();
+    return () => unsubscribe();
   }, []);
-
-  //   const handleVote = async (matchId: string, vote: string) => {
-  //     if (!user) return;
-  //     const matchRef = doc(db, "matches", matchId);
-  //     await updateDoc(matchRef, {
-  //       [`votes.${user.uid}`]: vote,
-  //     });
-  //     alert(`Voto registrado: ${vote}`);
-  //   };
 
   if (!user) return <Login />;
 

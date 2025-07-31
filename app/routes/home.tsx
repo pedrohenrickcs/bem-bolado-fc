@@ -1,5 +1,6 @@
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, onSnapshot } from "firebase/firestore";
+import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Footer } from "~/components/Footer";
 import { Header } from "~/components/Header";
@@ -26,6 +27,7 @@ export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [matchesByRound, setMatchesByRound] = useState({});
   const [selectedRound, setSelectedRound] = useState(18);
+  const [authLoading, setAuthLoading] = useState(true);
 
   //   useEffect(() => {
   //     import("~/lib/syncCartolaToFirestore").then(({ syncMultipleRounds }) => {
@@ -36,6 +38,7 @@ export default function Home() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -76,6 +79,19 @@ export default function Home() {
     }
   }, [rounds, selectedRound]);
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            Verificando autenticação...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) return <Login />;
 
   return (
@@ -88,14 +104,17 @@ export default function Home() {
         onLogout={() => signOut(auth)}
       />
 
-      <div className="flex items-center flex-col justify-center gap-4 pt-20 pb-6">
+      <div className="flex items-center text-center flex-col justify-center gap-4 pt-22 pb-6">
         <div>
           <span className="text-lg font-bold text-gray-600">
             Jogos da Rodada {selectedRound}
           </span>
+          <p className="text-xs">
+            Vote nos resultados e ajude a definir as apostas do grupo!
+          </p>
         </div>
 
-        <div className="gap-4 flex">
+        <div className="gap-4 flex mx-3">
           <button
             onClick={() =>
               setSelectedRound((prev) =>
@@ -103,7 +122,7 @@ export default function Home() {
               )
             }
             disabled={selectedRound === minRound}
-            className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 cursor-pointer"
+            className="px-4 py-2 bg-primary text-sm text-white rounded disabled:opacity-50 cursor-pointer"
           >
             ← Rodada Anterior
           </button>
@@ -115,7 +134,7 @@ export default function Home() {
               )
             }
             disabled={selectedRound === maxRound}
-            className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50 cursor-pointer"
+            className="px-4 py-2 bg-primary text-sm text-white rounded disabled:opacity-50 cursor-pointer"
           >
             Próxima Rodada →
           </button>

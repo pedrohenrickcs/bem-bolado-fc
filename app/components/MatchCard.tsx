@@ -1,5 +1,6 @@
 import { deleteField, doc, updateDoc } from "firebase/firestore";
-import { Clock } from "lucide-react";
+import { Clock, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Progress } from "~/components/ui/progress";
@@ -23,9 +24,10 @@ type Match = {
 
 export function MatchCard({ match, userId }: { match: Match; userId: string }) {
   const userVote = match.votes?.[userId];
-  const { tally, total } = computeVotes(match.votes ?? {});
+  const { tally } = computeVotes(match.votes ?? {});
   const percentages = getPercentages(tally);
   const isClosed = new Date(match.date).getTime() <= Date.now();
+  const [isVoting, setIsVoting] = useState(false);
 
   const voteLabels: Record<Vote, string> = {
     HOME: match.home_team,
@@ -35,17 +37,29 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
 
   async function handleVote(vote: Vote) {
     if (isClosed) return;
+    setIsVoting(true);
     const ref = doc(db, "matches", match.id);
-    await updateDoc(ref, {
-      [`votes.${userId}`]: vote,
-    });
+
+    try {
+      await updateDoc(ref, {
+        [`votes.${userId}`]: vote,
+      });
+    } finally {
+      setIsVoting(false);
+    }
   }
 
   async function handleResetVote() {
+    setIsVoting(true);
     const ref = doc(db, "matches", match.id);
-    await updateDoc(ref, {
-      [`votes.${userId}`]: deleteField(),
-    });
+
+    try {
+      await updateDoc(ref, {
+        [`votes.${userId}`]: deleteField(),
+      });
+    } finally {
+      setIsVoting(false);
+    }
   }
 
   return (
@@ -99,11 +113,15 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
               key={v}
               variant={userVote === v ? "default" : "outline"}
               size="sm"
-              disabled={isClosed}
+              disabled={isVoting || isClosed}
               onClick={() => handleVote(v)}
               className="text-xs py-2 cursor-pointer"
             >
-              {voteLabels[v]}
+              {isVoting ? (
+                <Loader2 className="animate-spin h-4 w-4" />
+              ) : (
+                voteLabels[v]
+              )}
             </Button>
           ))}
         </div>
@@ -114,7 +132,11 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
               onClick={handleResetVote}
               className="text-xs py-2 w-full bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer"
             >
-              Cancelar voto
+              {isVoting ? (
+                <Loader2 className="animate-spin h-4 w-4" />
+              ) : (
+                "Cancelar voto"
+              )}
             </Button>
           </div>
         )}

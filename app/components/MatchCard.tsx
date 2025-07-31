@@ -1,25 +1,36 @@
-import { deleteField, doc, updateDoc } from "firebase/firestore";
-import { Clock, Loader2 } from "lucide-react";
-import { useState } from "react";
-import { Button } from "~/components/ui/button";
+import { Clock } from "lucide-react";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Progress } from "~/components/ui/progress";
-import { db } from "../lib/firebase";
+import type { Match } from "~/types.ts/MatchesByRound";
+import { VoteActions } from "./MatchCard/components/VoteActions";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 
-type Vote = "HOME" | "DRAW" | "AWAY";
-
-type Match = {
-  id: string;
-  home_team: string;
-  away_team: string;
-  home_logo?: string;
-  away_logo?: string;
-  date: string;
-  local?: string;
-  championship?: string;
-  votes?: Record<string, Vote>;
+export const mockMatch = {
+  id: "match_334167",
+  round: 19,
+  home_team: "Flamengo",
+  away_team: "Palmeiras",
+  home_logo:
+    "https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/clubes_2025/escudos/FLA/60x60.png",
+  away_logo:
+    "https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/clubes_2025/escudos/PAL/60x60.png",
+  date: "2025-08-09 18:30:00",
+  local: "Maracanã",
+  championship: "Brasileirão",
+  placar_oficial_mandante: 2,
+  placar_oficial_visitante: 1,
+  status_cronometro_tr: "2º Tempo",
+  periodo_tr: "Segundo tempo",
+  votes: {
+    user1: "HOME",
+    user2: "HOME",
+    user3: "DRAW",
+    user4: "AWAY",
+    user5: "HOME",
+    user6: "AWAY",
+    user7: "HOME",
+  },
 };
 
 export function MatchCard({ match, userId }: { match: Match; userId: string }) {
@@ -27,40 +38,6 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
   const { tally } = computeVotes(match.votes ?? {});
   const percentages = getPercentages(tally);
   const isClosed = new Date(match.date).getTime() <= Date.now();
-  const [isVoting, setIsVoting] = useState(false);
-
-  const voteLabels: Record<Vote, string> = {
-    HOME: match.home_team,
-    DRAW: "Empate",
-    AWAY: match.away_team,
-  };
-
-  async function handleVote(vote: Vote) {
-    if (isClosed) return;
-    setIsVoting(true);
-    const ref = doc(db, "matches", match.id);
-
-    try {
-      await updateDoc(ref, {
-        [`votes.${userId}`]: vote,
-      });
-    } finally {
-      setIsVoting(false);
-    }
-  }
-
-  async function handleResetVote() {
-    setIsVoting(true);
-    const ref = doc(db, "matches", match.id);
-
-    try {
-      await updateDoc(ref, {
-        [`votes.${userId}`]: deleteField(),
-      });
-    } finally {
-      setIsVoting(false);
-    }
-  }
 
   return (
     <Card className="bg-card shadow-sm border rounded-xl">
@@ -89,6 +66,31 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
           <TeamInfo name={match.away_team} logo={match.away_logo} />
         </div>
 
+        {/* {mockMatch.placar_oficial_mandante !== null &&
+          mockMatch.placar_oficial_visitante !== null && (
+            <div className="text-center mt-2 relative">
+              <div className="text-lg font-semibold text-foreground">
+                {mockMatch.placar_oficial_mandante} x{" "}
+                {mockMatch.placar_oficial_visitante}
+              </div>
+
+              <div className="match-bar-container">
+                <div className="match-bar" />
+              </div>
+            </div>
+          )}
+
+        {mockMatch.status_cronometro_tr && (
+          <div className="text-center">
+            <Badge
+              variant="outline"
+              className="text-[11px] px-2 text-muted-foreground"
+            >
+              {mockMatch.status_cronometro_tr}
+            </Badge>
+          </div>
+        )} */}
+
         <div className="space-y-3">
           <VoteProgressBar
             label={`Vitória ${match.home_team}`}
@@ -107,39 +109,12 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mt-2">
-          {(["HOME", "DRAW", "AWAY"] as Vote[]).map((v) => (
-            <Button
-              key={v}
-              variant={userVote === v ? "default" : "outline"}
-              size="sm"
-              disabled={isVoting || isClosed}
-              onClick={() => handleVote(v)}
-              className="text-xs py-2 cursor-pointer"
-            >
-              {isVoting ? (
-                <Loader2 className="animate-spin h-4 w-4" />
-              ) : (
-                voteLabels[v]
-              )}
-            </Button>
-          ))}
-        </div>
-
-        {userVote && (
-          <div className="mt-2">
-            <Button
-              onClick={handleResetVote}
-              className="text-xs py-2 w-full bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer"
-            >
-              {isVoting ? (
-                <Loader2 className="animate-spin h-4 w-4" />
-              ) : (
-                "Cancelar voto"
-              )}
-            </Button>
-          </div>
-        )}
+        <VoteActions
+          match={match}
+          userId={userId}
+          currentVote={userVote}
+          isClosed={isClosed}
+        />
       </CardContent>
     </Card>
   );

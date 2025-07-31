@@ -1,0 +1,1 @@
+export type Vote = "HOME" | "DRAW" | "AWAY";

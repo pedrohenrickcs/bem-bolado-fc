@@ -6,6 +6,8 @@ export async function syncMultipleRounds(start: number, end: number) {
   for (let round = start; round <= end; round++) {
     const partidas = await getCartolaMatches(round);
 
+    console.log('partidas', partidas)
+
     for (const partida of partidas) {
       const ref = doc(db, "matches", partida.id);
       await setDoc(ref, {

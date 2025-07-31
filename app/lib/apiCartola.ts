@@ -18,8 +18,13 @@ export async function getCartolaMatches(round: number = 1) {
       away_logo: awayClub.escudos["60x60"],
       date: partida.partida_data,
       local: partida.local,
+      surname_away: awayClub.apelido || '',
+      surname_home: homeClub.apelido || '',
       championship: "Brasileirão",
-      votes: {}, 
+      placar_oficial_mandante: partida.placar_oficial_mandante ?? null,
+      placar_oficial_visitante: partida.placar_oficial_visitante ?? null,
+      status_cronometro_tr: partida.status_cronometro_tr ?? "",
+      periodo_tr: partida.periodo_tr ?? "",
     };
   });
 

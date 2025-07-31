@@ -41,6 +41,8 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
   const percentages = getPercentages(tally);
   const isClosed = new Date(match.date).getTime() <= Date.now();
 
+  console.log("MATCH", match);
+
   return (
     <Card className="bg-card shadow-sm border rounded-xl">
       <CardHeader className="pb-1">
@@ -68,12 +70,12 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
           <TeamInfo name={match.away_team} logo={match.away_logo} />
         </div>
 
-        {/* {mockMatch.placar_oficial_mandante !== null &&
-          mockMatch.placar_oficial_visitante !== null && (
+        {match.placar_oficial_mandante !== null &&
+          match.placar_oficial_visitante !== null && (
             <div className="text-center mt-2 relative">
               <div className="text-lg font-semibold text-foreground">
-                {mockMatch.placar_oficial_mandante} x{" "}
-                {mockMatch.placar_oficial_visitante}
+                {match.placar_oficial_mandante} x{" "}
+                {match.placar_oficial_visitante}
               </div>
 
               <div className="match-bar-container">
@@ -82,16 +84,16 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
             </div>
           )}
 
-        {mockMatch.status_cronometro_tr && (
+        {match.status_cronometro_tr && (
           <div className="text-center">
             <Badge
               variant="outline"
               className="text-[11px] px-2 text-muted-foreground"
             >
-              {mockMatch.status_cronometro_tr}
+              {match.status_cronometro_tr}
             </Badge>
           </div>
-        )} */}
+        )}
 
         <div className="space-y-3">
           <VoteProgressBar

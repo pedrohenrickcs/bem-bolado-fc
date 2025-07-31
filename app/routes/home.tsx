@@ -29,13 +29,13 @@ type Match = {
 };
 
 type MatchesByRound = Record<number, Match[]>;
+type Vote = "HOME" | "DRAW" | "AWAY";
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [matchesByRound, setMatchesByRound] = useState({});
   const [selectedRound, setSelectedRound] = useState(18);
   const [authLoading, setAuthLoading] = useState(true);
-  //   const [showVotes, setShowVotes] = useState(false);
   const [showPopularVotes, setShowPopularVotes] = useState(false);
 
   //   useEffect(() => {
@@ -232,8 +232,6 @@ export default function Home() {
     </div>
   );
 }
-
-type Vote = "HOME" | "DRAW" | "AWAY";
 
 function getTopVote(
   votes: Record<string, Vote>

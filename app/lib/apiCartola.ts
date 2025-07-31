@@ -5,13 +5,13 @@ export async function getCartolaMatches(round: number = 1) {
   const partidas = data.partidas;
   const clubes = data.clubes;
 
-  // Monta os jogos com escudos e nomes bonitinhos
-  const jogosFormatados = partidas.map((partida: any) => {
+  const matchesFormatted = partidas.map((partida: any) => {
     const homeClub = clubes[partida.clube_casa_id];
     const awayClub = clubes[partida.clube_visitante_id];
 
     return {
       id: `match_${partida.partida_id}`,
+      round,
       home_team: homeClub.nome_fantasia || homeClub.nome,
       away_team: awayClub.nome_fantasia || awayClub.nome,
       home_logo: homeClub.escudos["60x60"],
@@ -23,5 +23,5 @@ export async function getCartolaMatches(round: number = 1) {
     };
   });
 
-  return jogosFormatados;
+  return matchesFormatted;
 }

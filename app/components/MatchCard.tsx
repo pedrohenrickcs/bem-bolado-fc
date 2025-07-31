@@ -1,4 +1,4 @@
-import { doc, updateDoc } from "firebase/firestore";
+import { deleteField, doc, updateDoc } from "firebase/firestore";
 import { Clock } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
@@ -38,6 +38,13 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
     const ref = doc(db, "matches", match.id);
     await updateDoc(ref, {
       [`votes.${userId}`]: vote,
+    });
+  }
+
+  async function handleResetVote() {
+    const ref = doc(db, "matches", match.id);
+    await updateDoc(ref, {
+      [`votes.${userId}`]: deleteField(),
     });
   }
 
@@ -94,12 +101,23 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
               size="sm"
               disabled={isClosed}
               onClick={() => handleVote(v)}
-              className="text-xs py-2"
+              className="text-xs py-2 cursor-pointer"
             >
               {voteLabels[v]}
             </Button>
           ))}
         </div>
+
+        {userVote && (
+          <div className="mt-2">
+            <Button
+              onClick={handleResetVote}
+              className="text-xs py-2 w-full bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer"
+            >
+              Cancelar voto
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

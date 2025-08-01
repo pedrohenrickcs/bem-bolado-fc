@@ -84,14 +84,32 @@ export default function Leaderboard() {
   const [ranking, setRanking] = useState<PlayerStats[]>([]);
 
   useEffect(() => {
-    async function fetchMatches() {
-      const snapshot = await getDocs(collection(db, "matches"));
-      const matches = snapshot.docs.map((doc) => doc.data() as Match);
+    async function fetchMatchesAndUsers() {
+      const matchSnapshot = await getDocs(collection(db, "matches"));
+      const userSnapshot = await getDocs(collection(db, "users"));
+
+      const matches = matchSnapshot.docs.map((doc) => doc.data() as Match);
+
+      const usersMap = Object.fromEntries(
+        userSnapshot.docs.map((doc) => [
+          doc.id,
+          doc.data().name || `User ${doc.id.slice(-4)}`,
+        ])
+      );
+
       const stats = gerarEstatisticas(matches);
-      setRanking(stats.sort((a, b) => b.percentualAcerto - a.percentualAcerto));
+
+      const withNames = stats.map((s) => ({
+        ...s,
+        name: usersMap[s.uid] || `User ${s.uid.slice(-4)}`,
+      }));
+
+      setRanking(
+        withNames.sort((a, b) => b.percentualAcerto - a.percentualAcerto)
+      );
     }
 
-    fetchMatches();
+    fetchMatchesAndUsers();
   }, []);
 
   return (

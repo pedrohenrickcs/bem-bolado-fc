@@ -24,6 +24,8 @@ export default function Home() {
   const [selectedRound, setSelectedRound] = useState<number>(18);
   const [showPopularVotes, setShowPopularVotes] = useState(false);
 
+  console.log("user", user);
+
   //   useEffect(() => {
   //     import("~/lib/syncCartolaToFirestore").then(({ syncMultipleRounds }) => {
   //       syncMultipleRounds(18, 21);
@@ -31,10 +33,15 @@ export default function Home() {
   //   }, []);
 
   useEffect(() => {
-    return onAuthStateChanged(auth, (currentUser) => {
+    return onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         const { uid, email, displayName } = currentUser;
         setUser({ uid, email: email ?? "", displayName: displayName ?? "" });
+
+        const { saveUserToFirestore } = await import(
+          "~/lib/saveUserToFirestore"
+        );
+        await saveUserToFirestore(currentUser);
       } else {
         setUser(null);
       }

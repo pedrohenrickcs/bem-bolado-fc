@@ -8,43 +8,14 @@ import { VoteActions } from "./MatchCard/components/VoteActions";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 
-export const mockMatch = {
-  id: "match_334167",
-  round: 19,
-  home_team: "Flamengo",
-  away_team: "Palmeiras",
-  home_logo:
-    "https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/clubes_2025/escudos/FLA/60x60.png",
-  away_logo:
-    "https://s3.glbimg.com/v1/AUTH_58d78b787ec34892b5aaa0c7a146155f/clubes_2025/escudos/PAL/60x60.png",
-  date: "2025-08-09 18:30:00",
-  local: "Maracanã",
-  championship: "Brasileirão",
-  placar_oficial_mandante: 2,
-  placar_oficial_visitante: 1,
-  status_cronometro_tr: "2º Tempo",
-  periodo_tr: "Segundo tempo",
-  votes: {
-    user1: "HOME",
-    user2: "HOME",
-    user3: "DRAW",
-    user4: "AWAY",
-    user5: "HOME",
-    user6: "AWAY",
-    user7: "HOME",
-  },
-};
-
 export function MatchCard({ match, userId }: { match: Match; userId: string }) {
   const userVote = match.votes?.[userId];
   const { tally } = computeVotes(match.votes ?? {});
   const percentages = getPercentages(tally);
   const isClosed = new Date(match.date).getTime() <= Date.now();
 
-  console.log("MATCH", match);
-
   return (
-    <Card className="bg-card shadow-sm border rounded-xl">
+    <Card className="bg-card shadow-sm border rounded-xl relative">
       <CardHeader className="pb-1">
         <div className="flex justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">

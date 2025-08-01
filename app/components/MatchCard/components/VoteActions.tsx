@@ -1,4 +1,3 @@
-import { Loader2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import type { Match } from "~/types.ts/MatchesByRound";
 import type { Vote } from "~/types.ts/Vote";
@@ -30,13 +29,9 @@ export function VoteActions({ match, userId, currentVote, isClosed }: Props) {
             size="sm"
             disabled={isVoting || isClosed}
             onClick={() => vote(v)}
-            className="text-xs py-2"
+            className="text-xs py-2 cursor-pointer"
           >
-            {isVoting ? (
-              <Loader2 className="animate-spin h-4 w-4" />
-            ) : (
-              voteLabels[v]
-            )}
+            {voteLabels[v]}
           </Button>
         ))}
       </div>
@@ -45,13 +40,10 @@ export function VoteActions({ match, userId, currentVote, isClosed }: Props) {
         <div className="mt-2">
           <Button
             onClick={resetVote}
-            className="text-xs py-2 w-full bg-red-100 text-red-700 hover:bg-red-200"
+            disabled={isVoting || isClosed}
+            className="text-xs py-2 w-full bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer"
           >
-            {isVoting ? (
-              <Loader2 className="animate-spin h-4 w-4" />
-            ) : (
-              "Cancelar voto"
-            )}
+            Cancelar voto
           </Button>
         </div>
       )}

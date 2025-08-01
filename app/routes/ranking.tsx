@@ -95,46 +95,48 @@ export default function Leaderboard() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-8 text-center">
-        🏆 Ranking Bem Bolado FC
-      </h1>
+    <div className="flex flex-col justify-between min-h-screen bg-gradient-to-br from-emerald-50 via-yellow-50 to-blue-50">
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <h1 className="text-3xl font-bold mb-8 text-center">
+          🏆 Ranking Bem Bolado FC
+        </h1>
 
-      <div className="overflow-x-auto rounded-lg shadow">
-        <table className="min-w-full border border-border text-sm">
-          <thead className="bg-muted text-xs uppercase tracking-wider">
-            <tr>
-              <th className="px-4 py-3 text-left">#</th>
-              <th className="px-4 py-3 text-left">Jogador</th>
-              <th className="px-4 py-3 text-center">🎯 Acertos</th>
-              <th className="px-4 py-3 text-center">❌ Erros</th>
-              <th className="px-4 py-3 text-center">% Acerto</th>
-              <th className="px-4 py-3 text-left">🔥 Destaque</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ranking.map((player, i) => (
-              <tr key={player.uid} className="even:bg-muted/30">
-                <td className="px-4 py-2 font-bold">{i + 1}</td>
-                <td className="px-4 py-2">{player.name}</td>
-                <td className="px-4 py-2 text-center">{player.acertos}</td>
-                <td className="px-4 py-2 text-center">{player.erros}</td>
-                <td className="px-4 py-2 text-center">
-                  {player.percentualAcerto}%
-                </td>
-                <td className="px-4 py-2">
-                  {getTag(player) ? (
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                      {getTag(player)}
-                    </span>
-                  ) : (
-                    "-"
-                  )}
-                </td>
+        <div className="overflow-x-auto rounded-lg shadow bg-white">
+          <table className="min-w-full border border-border text-sm">
+            <thead className="bg-muted text-xs uppercase tracking-wider">
+              <tr>
+                <th className="px-4 py-3 text-left">#</th>
+                <th className="px-4 py-3 text-left">Jogador</th>
+                <th className="px-4 py-3 text-center">🎯 Acertos</th>
+                <th className="px-4 py-3 text-center">❌ Erros</th>
+                <th className="px-4 py-3 text-center">% Acerto</th>
+                <th className="px-4 py-3 text-left">🔥 Destaque</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {ranking.map((player, i) => (
+                <tr key={player.uid} className="even:bg-muted/30">
+                  <td className="px-4 py-2 font-bold">{i + 1}</td>
+                  <td className="px-4 py-2">{player.name}</td>
+                  <td className="px-4 py-2 text-center">{player.acertos}</td>
+                  <td className="px-4 py-2 text-center">{player.erros}</td>
+                  <td className="px-4 py-2 text-center">
+                    {player.percentualAcerto}%
+                  </td>
+                  <td className="px-4 py-2">
+                    {getTag(player) ? (
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                        {getTag(player)}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

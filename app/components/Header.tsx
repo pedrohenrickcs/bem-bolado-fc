@@ -1,4 +1,5 @@
 import { BarChart2, History, LogOut, User } from "lucide-react";
+import { Link } from "react-router";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -41,10 +42,13 @@ export function Header({ user, onLogout }: Props) {
 
         {/* Menu de navegação */}
         <nav className="flex items-center gap-4 text-sm text-muted-foreground">
-          <button className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
+          <Link
+            to="/ranking"
+            className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
+          >
             <BarChart2 className="w-4 h-4" />
             Ranking
-          </button>
+          </Link>
           <button className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
             <History className="w-4 h-4" />
             Histórico

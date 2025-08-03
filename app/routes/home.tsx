@@ -24,11 +24,11 @@ export default function Home() {
   const [selectedRound, setSelectedRound] = useState<number>(18);
   const [showPopularVotes, setShowPopularVotes] = useState(false);
 
-  //   useEffect(() => {
-  //     import("~/lib/syncCartolaToFirestore").then(({ syncMultipleRounds }) => {
-  //       syncMultipleRounds(18, 21);
-  //     });
-  //   }, []);
+  useEffect(() => {
+    import("~/lib/syncCartolaToFirestore").then(({ syncMultipleRounds }) => {
+      syncMultipleRounds(18, 21);
+    });
+  }, []);
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (currentUser) => {

@@ -54,16 +54,17 @@ function getPeriodoLabel(periodo?: string): string {
 }
 
 export function MatchCard({ match, userId }: { match: Match; userId: string }) {
+  console.log("match", match);
   const userVote = match.votes?.[userId];
   const { tally } = computeVotes(match.votes ?? {});
   const percentages = getPercentages(tally);
   const isClosed = new Date(match.date).getTime() <= Date.now();
 
-  console.log({
-    status_transmissao_tr: match.status_transmissao_tr,
-    status_cronometro_tr: match.status_cronometro_tr,
-    periodo_tr: match.periodo_tr,
-  });
+  //   console.log({
+  //     status_transmissao_tr: match.status_transmissao_tr,
+  //     status_cronometro_tr: match.status_cronometro_tr,
+  //     periodo_tr: match.periodo_tr,
+  //   });
 
   return (
     <Card className="bg-card shadow-sm border rounded-xl relative">
@@ -92,12 +93,11 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
               variant="outline"
               className="text-[11px] px-2 text-muted-foreground text-center"
             >
-              {match.status_transmissao_tr !== "ENCERRADA" &&
-              match.status_transmissao_tr !== "CRIADA" ? (
+              {match.status_transmissao_tr === "EM_ANDAMENTO" ? (
                 <>
                   {extractMinutes(match.status_cronometro_tr as string)}
                   {match.periodo_tr &&
-                    ` • ${getPeriodoLabel(match.periodo_tr as string)}`}
+                    `${getPeriodoLabel(match.periodo_tr as string)}`}
                 </>
               ) : (
                 "VS"

@@ -19,6 +19,7 @@ export async function syncMultipleRounds(start: number, end: number) {
         placar_oficial_mandante: partida.placar_oficial_mandante ?? null,
         placar_oficial_visitante: partida.placar_oficial_visitante ?? null,
         status_cronometro_tr: partida.status_cronometro_tr ?? "",
+        status_transmissao_tr: partida.status_transmissao_tr ?? "",
         periodo_tr: partida.periodo_tr ?? "",
         }, { merge: true });
     }

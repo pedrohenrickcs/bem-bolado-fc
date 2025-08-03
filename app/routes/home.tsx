@@ -24,8 +24,6 @@ export default function Home() {
   const [selectedRound, setSelectedRound] = useState<number>(18);
   const [showPopularVotes, setShowPopularVotes] = useState(false);
 
-  console.log("user", user);
-
   //   useEffect(() => {
   //     import("~/lib/syncCartolaToFirestore").then(({ syncMultipleRounds }) => {
   //       syncMultipleRounds(18, 21);

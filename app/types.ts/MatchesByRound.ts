@@ -13,7 +13,8 @@ export interface Match {
   votes?: Record<string, Vote>;
   placar_oficial_mandante?: number | null
   placar_oficial_visitante?: number | null
-  status_cronometro_tr?: string | number
+  status_cronometro_tr?: string | number | null
+  status_transmissao_tr?: string
   periodo_tr?: number | string
   surname_away?: string | null
   surname_home?: string | null

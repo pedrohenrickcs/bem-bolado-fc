@@ -8,11 +8,62 @@ import { VoteActions } from "./MatchCard/components/VoteActions";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 
+function extractMinutes(cronometro: string): string {
+  if (!cronometro) return "";
+
+  // Caso venha tipo 'PT34M12S' (ISO 8601)
+  const isoMatch = cronometro.match(/PT(\d+)M/);
+  if (isoMatch) return `${isoMatch[1]} min`;
+
+  // Caso venha tipo '00:34:12'
+  const timeMatch = cronometro.match(/(\d+):(\d+):(\d+)/);
+  if (timeMatch) return `${parseInt(timeMatch[2], 10)} min`;
+
+  // Caso venha só um número (ex: segundos ou milissegundos)
+  const numberMatch = cronometro.match(/^\d+$/);
+  if (numberMatch) {
+    const totalSeconds = parseInt(cronometro, 10);
+    const minutes = Math.floor(totalSeconds / 60);
+    return `${minutes} min`;
+  }
+
+  // Fallback: tenta capturar qualquer número
+  const fallback = cronometro.match(/\d+/);
+  if (fallback) return `${fallback[0]} min`;
+
+  return "";
+}
+
+function getPeriodoLabel(periodo?: string): string {
+  if (!periodo) return "";
+
+  switch (periodo) {
+    case "PRIMEIRO_TEMPO":
+      return "1º tempo";
+    case "SEGUNDO_TEMPO":
+      return "2º tempo";
+    case "INTERVALO":
+      return "Intervalo";
+    case "POS_JOGO":
+      return "Pós-jogo";
+    case "PRE_JOGO":
+      return "Pré-jogo";
+    default:
+      return "";
+  }
+}
+
 export function MatchCard({ match, userId }: { match: Match; userId: string }) {
   const userVote = match.votes?.[userId];
   const { tally } = computeVotes(match.votes ?? {});
   const percentages = getPercentages(tally);
   const isClosed = new Date(match.date).getTime() <= Date.now();
+
+  console.log({
+    status_transmissao_tr: match.status_transmissao_tr,
+    status_cronometro_tr: match.status_cronometro_tr,
+    periodo_tr: match.periodo_tr,
+  });
 
   return (
     <Card className="bg-card shadow-sm border rounded-xl relative">
@@ -34,13 +85,27 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
             </span>
           </div>
         )}
-
         <div className="flex items-center justify-center gap-4 text-base font-medium">
           <TeamInfo name={match.home_team} logo={match.home_logo} />
-          <span className="text-lg text-muted-foreground">vs</span>
+          <div className="text-center">
+            <Badge
+              variant="outline"
+              className="text-[11px] px-2 text-muted-foreground text-center"
+            >
+              {match.status_transmissao_tr !== "ENCERRADA" &&
+              match.status_transmissao_tr !== "CRIADA" ? (
+                <>
+                  {extractMinutes(match.status_cronometro_tr as string)}
+                  {match.periodo_tr &&
+                    ` • ${getPeriodoLabel(match.periodo_tr as string)}`}
+                </>
+              ) : (
+                "VS"
+              )}
+            </Badge>
+          </div>
           <TeamInfo name={match.away_team} logo={match.away_logo} />
         </div>
-
         {match.placar_oficial_mandante !== null &&
           match.placar_oficial_visitante !== null && (
             <div className="text-center mt-2 relative">
@@ -49,21 +114,18 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
                 {match.placar_oficial_visitante}
               </div>
 
-              <div className="match-bar-container">
-                <div className="match-bar" />
-              </div>
+              {match.periodo_tr !== "POS_JOGO" && (
+                <div className="match-bar-container">
+                  <div className="match-bar" />
+                </div>
+              )}
             </div>
           )}
 
-        {match.status_cronometro_tr && (
-          <div className="text-center">
-            <Badge
-              variant="outline"
-              className="text-[11px] px-2 text-muted-foreground"
-            >
-              {match.status_cronometro_tr}
-            </Badge>
-          </div>
+        {match.status_transmissao_tr === "ENCERRADA" && (
+          <span className="text-xs text-muted-foreground italic flex justify-center">
+            Transmissão encerrada
+          </span>
         )}
 
         <div className="space-y-3">
@@ -83,7 +145,6 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
             count={tally.AWAY}
           />
         </div>
-
         <VoteActions
           match={match}
           userId={userId}

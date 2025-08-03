@@ -1,5 +1,5 @@
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 
 import { Footer } from "~/components/Footer";
@@ -25,9 +25,19 @@ export default function Home() {
   const [showPopularVotes, setShowPopularVotes] = useState(false);
 
   useEffect(() => {
-    import("~/lib/syncCartolaToFirestore").then(({ syncMultipleRounds }) => {
-      syncMultipleRounds(18, 21);
-    });
+    async function checkAndSync() {
+      const snapshot = await getDocs(collection(db, "matches"));
+      const hasMatches = !snapshot.empty;
+
+      if (!hasMatches) {
+        const { syncMultipleRounds } = await import(
+          "~/lib/syncCartolaToFirestore"
+        );
+        await syncMultipleRounds(18, 21);
+      }
+    }
+
+    checkAndSync();
   }, []);
 
   useEffect(() => {

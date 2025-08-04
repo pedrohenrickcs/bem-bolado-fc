@@ -57,12 +57,6 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
     }
   }, [match]);
 
-  console.info({
-    status_transmissao_tr: match.status_transmissao_tr,
-    status_cronometro_tr: match.status_cronometro_tr,
-    periodo_tr: match.periodo_tr,
-  });
-
   return (
     <Card className="bg-card shadow-sm border rounded-xl relative">
       <CardHeader className="pb-1">
@@ -119,11 +113,9 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
             </div>
           )}
 
-        {/* {match.status_transmissao_tr === "ENCERRADA" && ( */}
         <span className="text-xs text-muted-foreground italic flex justify-center">
           {getPeriodLabel(match.status_transmissao_tr as string)}
         </span>
-        {/* )} */}
 
         <div className="space-y-3">
           <VoteProgressBar

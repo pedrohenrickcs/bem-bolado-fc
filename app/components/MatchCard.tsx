@@ -31,9 +31,9 @@ function getPeriodLabel(period: string): string {
     case "PRIMEIRO_TEMPO":
       return "1º tempo";
     case "SEGUNDO_TEMPO":
-      return "2º Half";
+      return "2º tempo";
     case "PAUSADO":
-      return "intervalo";
+      return "Intervalo";
     case "CRIADA":
       return "Começa em breve";
     case "ENCERRADA":

@@ -19,6 +19,8 @@ export interface Match {
   periodo_tr?: number | string
   surname_away?: string | null
   surname_home?: string | null
+  confronto_mandante?: string
+  confronto_visitante?: string
 }
 
 export type MatchesByRound = Record<number, Match[]>;

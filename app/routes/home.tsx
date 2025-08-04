@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { Footer } from "~/components/Footer";
 import FullScreenLoader from "~/components/FullScreenLoader";
@@ -20,6 +20,23 @@ const fetchMatches = async () => {
     ...doc.data(),
   })) as Match[];
 };
+
+function useLiveMatchSync() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "matches"), (snapshot) => {
+      const matches = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Match[];
+
+      queryClient.setQueryData(["matches"], matches);
+    });
+
+    return () => unsubscribe();
+  }, [queryClient]);
+}
 
 export default function Home() {
   const [user, setUser] = useState<null | {
@@ -48,6 +65,8 @@ export default function Home() {
       setAuthLoading(false);
     });
   }, []);
+
+  useLiveMatchSync();
 
   const { data: matches } = useQuery({
     queryKey: ["matches"],

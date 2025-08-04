@@ -39,6 +39,8 @@ async function processRound(round: number, existingMatches: Map<string, any>) {
             status_transmissao_tr: partida.status_transmissao_tr,
             periodo_tr: partida.periodo_tr,
             inicio_cronometro_tr: partida.inicio_cronometro_tr,
+            confronto_mandante: partida.confronto_mandante,
+            confronto_visitante: partida.confronto_visitante,
         }, { merge: true });
     }
     

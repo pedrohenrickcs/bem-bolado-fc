@@ -1,4 +1,4 @@
-import { Clock } from "lucide-react";
+import { Clock, Handshake, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Progress } from "~/components/ui/progress";
@@ -8,24 +8,32 @@ import getInitial from "~/utils/getInitial";
 import { VoteActions } from "./MatchCard/components/VoteActions";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
-function extractMinutes(inicio: string): string {
-  const inicioDate = new Date(inicio);
-  const agora = new Date();
-  const diffMs = agora.getTime() - inicioDate.getTime();
+type ResultCount = {
+  w: number;
+  d: number;
+  l: number;
+};
+
+function extractElapsedMinutes(start: string): string {
+  const startDate = new Date(start);
+  const now = new Date();
+  const diffMs = now.getTime() - startDate.getTime();
   const diffMin = Math.floor(diffMs / 1000 / 60);
 
   return `${diffMin} min`;
 }
 
-function getPeriodLabel(periodo: string): string {
-  switch (periodo) {
+function getPeriodLabel(period: string): string {
+  switch (period) {
     case "PRIMEIRO_TEMPO":
       return "1º tempo";
     case "SEGUNDO_TEMPO":
-      return "2º tempo";
+      return "2º Half";
     case "PAUSADO":
-      return "Intervalo";
+      return "intervalo";
     case "CRIADA":
       return "Começa em breve";
     case "ENCERRADA":
@@ -40,7 +48,8 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
   const { tally } = computeVotes(match.votes ?? {});
   const percentages = getPercentages(tally);
   const isClosed = new Date(match.date).getTime() <= Date.now();
-  const [minutos, setMinutos] = useState("");
+  const [elapsedTime, setElapsedTime] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     if (
@@ -49,7 +58,7 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
       match.inicio_cronometro_tr !== ""
     ) {
       const update = () =>
-        setMinutos(extractMinutes(match.inicio_cronometro_tr ?? ""));
+        setElapsedTime(extractElapsedMinutes(match.inicio_cronometro_tr ?? ""));
       update();
 
       const interval = setInterval(update, 60 * 1000);
@@ -59,6 +68,26 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
 
   return (
     <Card className="bg-card shadow-sm border rounded-xl relative">
+      <div className="grid grid-cols-1 justify-items-center">
+        <Button
+          variant="outline"
+          size="default"
+          onClick={() => setDialogOpen(true)}
+          className="mt-2 cursor-pointer"
+        >
+          Ver histórico do confronto
+        </Button>
+      </div>
+
+      <ConfrontationDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        homeHistory={match.confronto_mandante ?? ""}
+        awayHistory={match.confronto_visitante ?? ""}
+        homeName={match.home_team}
+        awayName={match.away_team}
+      />
+
       <CardHeader className="pb-1">
         <div className="flex justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -84,9 +113,9 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
               variant="outline"
               className="text-[11px] px-2 text-muted-foreground text-center"
             >
-              {minutos ? (
+              {elapsedTime ? (
                 <>
-                  {minutos}
+                  {elapsedTime}
                   {match.periodo_tr &&
                     `${getPeriodLabel(match.periodo_tr as string)}`}
                 </>
@@ -97,6 +126,7 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
           </div>
           <TeamInfo name={match.away_team} logo={match.away_logo} />
         </div>
+
         {match.placar_oficial_mandante !== null &&
           match.placar_oficial_visitante !== null && (
             <div className="text-center mt-2 relative">
@@ -180,5 +210,88 @@ function VoteProgressBar({
       </div>
       <Progress value={value} />
     </div>
+  );
+}
+
+function countResults(arr: string[]): ResultCount {
+  return arr.reduce(
+    (acc, res) => {
+      if (res === "v") acc.w++;
+      else if (res === "e") acc.d++;
+      else if (res === "d") acc.l++;
+      return acc;
+    },
+    { w: 0, d: 0, l: 0 }
+  );
+}
+
+export function ConfrontationDialog({
+  open,
+  onOpenChange,
+  homeHistory,
+  awayHistory,
+  homeName,
+  awayName,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  homeHistory: string;
+  awayHistory: string;
+  homeName: string;
+  awayName: string;
+}) {
+  const homeStats = countResults(Array.isArray(homeHistory) ? homeHistory : []);
+  const awayStats = countResults(Array.isArray(awayHistory) ? awayHistory : []);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Ver histórico do confronto</DialogTitle>
+        </DialogHeader>
+
+        <div className="grid text-sm md:grid-cols-2">
+          <div>
+            <h2 className="text-base font-semibold mb-2 text-center">
+              {homeName} (mandante)
+            </h2>
+            <ul className="space-y-1">
+              <li className="flex items-center justify-center gap-2">
+                <ThumbsUp className="w-4 h-4 text-green-600" />
+                {homeStats.w} Vitórias
+              </li>
+              <li className="flex items-center justify-center gap-2">
+                <Handshake className="w-4 h-4 text-yellow-500" />
+                {homeStats.d} Empates
+              </li>
+              <li className="flex items-center justify-center gap-2">
+                <ThumbsDown className="w-4 h-4 text-red-600" />
+                {homeStats.l} Derrotas
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-base font-semibold mb-2 text-center">
+              {awayName} (Visitante)
+            </h2>
+            <ul className="space-y-1">
+              <li className="flex items-center gap-2 justify-center">
+                <ThumbsUp className="w-4 h-4 text-green-600" />
+                {awayStats.w} Vitórias
+              </li>
+              <li className="flex items-center gap-2 justify-center">
+                <Handshake className="w-4 h-4 text-yellow-500" />
+                {awayStats.d} Empates
+              </li>
+              <li className="flex items-center gap-2 justify-center">
+                <ThumbsDown className="w-4 h-4 text-red-600" />
+                {awayStats.l} Derrotas
+              </li>
+            </ul>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

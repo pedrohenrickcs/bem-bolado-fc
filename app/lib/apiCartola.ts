@@ -37,6 +37,8 @@ export async function getCartolaMatches(round: number = 1) {
       status_transmissao_tr: partida.status_transmissao_tr,
       periodo_tr: partida.periodo_tr,
       inicio_cronometro_tr: partida.inicio_cronometro_tr,
+      confronto_mandante: partida.aproveitamento_mandante || [],
+      confronto_visitante: partida.aproveitamento_visitante || [],
     };
   });
 

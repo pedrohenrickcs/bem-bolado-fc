@@ -115,9 +115,9 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
             >
               {elapsedTime ? (
                 <>
-                  {elapsedTime}
+                  {elapsedTime}{" "}
                   {match.periodo_tr &&
-                    `${getPeriodLabel(match.periodo_tr as string)}`}
+                    ` - ${getPeriodLabel(match.periodo_tr as string)}`}
                 </>
               ) : (
                 "VS"

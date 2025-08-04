@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
-
 import { Footer } from "~/components/Footer";
 import FullScreenLoader from "~/components/FullScreenLoader";
 import { Header } from "~/components/Header";
@@ -32,30 +31,6 @@ export default function Home() {
   const [syncLoading, setSyncLoading] = useState(false);
   const [selectedRound, setSelectedRound] = useState<number>(18);
   const [showPopularVotes, setShowPopularVotes] = useState(false);
-
-  useEffect(() => {
-    async function checkAndSync() {
-      try {
-        setSyncLoading(true);
-        const { syncMultipleRounds } = await import(
-          "~/lib/syncCartolaToFirestore"
-        );
-
-        syncMultipleRounds(18, 21)
-          .then(() => {
-            setSyncLoading(false);
-          })
-          .catch((error) => {
-            console.error("Erro na sincronização:", error);
-            setSyncLoading(false);
-          });
-      } catch (error) {
-        console.error("Erro ao verificar partidas:", error);
-      }
-    }
-
-    checkAndSync();
-  }, []);
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (currentUser) => {

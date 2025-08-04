@@ -92,7 +92,13 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
         <div className="flex justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
-            <span>{new Date(match.date).toLocaleString()}</span>
+            <span>
+              {new Date(match.date).toLocaleDateString("pt-BR")} às{" "}
+              {new Date(match.date).toLocaleTimeString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
           </div>
           <Badge variant="outline">{match.championship ?? "Brasileirão"}</Badge>
         </div>

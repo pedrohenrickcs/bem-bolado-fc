@@ -36,15 +36,11 @@ export default function Home() {
   useEffect(() => {
     async function checkAndSync() {
       try {
-        const snapshot = await getDocs(collection(db, "matches"));
-
         setSyncLoading(true);
-        // Executar sincronização em background sem bloquear a UI
         const { syncMultipleRounds } = await import(
           "~/lib/syncCartolaToFirestore"
         );
 
-        // Executar sem await para não bloquear
         syncMultipleRounds(18, 21)
           .then(() => {
             setSyncLoading(false);
@@ -78,23 +74,12 @@ export default function Home() {
     });
   }, []);
 
-  const { data: matches, isLoading: matchesLoading } = useQuery({
+  const { data: matches } = useQuery({
     queryKey: ["matches"],
     queryFn: fetchMatches,
-    staleTime: 60 * 1000, // 1 minuto "fresco"
-    refetchInterval: 60 * 1000, // atualiza a cada 1min
+    staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
   });
-
-  //   useEffect(() => {
-  //     return onSnapshot(collection(db, "matches"), (snapshot) => {
-  //       const allMatches = snapshot.docs.map((doc) => ({
-  //         id: doc.id,
-  //         ...doc.data(),
-  //       })) as Match[];
-
-  //       setMatchesByRound(groupMatchesByRound(allMatches));
-  //     });
-  //   }, []);
 
   useEffect(() => {
     const sync = async () => {

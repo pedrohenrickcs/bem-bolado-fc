@@ -1,4 +1,3 @@
-// Cache simples para evitar chamadas desnecessárias
 const apiCache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
@@ -6,7 +5,6 @@ export async function getCartolaMatches(round: number = 1) {
   const cacheKey = `matches_${round}`;
   const cached = apiCache.get(cacheKey);
   
-  // Verificar se temos dados em cache válidos
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
     return cached.data;
   }
@@ -38,10 +36,10 @@ export async function getCartolaMatches(round: number = 1) {
       status_cronometro_tr: partida.status_cronometro_tr,
       status_transmissao_tr: partida.status_transmissao_tr,
       periodo_tr: partida.periodo_tr,
+      inicio_cronometro_tr: partida.inicio_cronometro_tr,
     };
   });
 
-  // Armazenar no cache
   apiCache.set(cacheKey, {
     data: matchesFormatted,
     timestamp: Date.now()

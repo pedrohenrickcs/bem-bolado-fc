@@ -3,7 +3,6 @@ import { getCartolaMatches } from "./apiCartola";
 import { db } from "./firebase";
 
 export async function syncMultipleRounds(start: number, end: number) {
-    // Buscar todos os documentos existentes de uma vez
     const existingMatchesSnapshot = await getDocs(collection(db, "matches"));
     const existingMatches = new Map();
     
@@ -11,7 +10,6 @@ export async function syncMultipleRounds(start: number, end: number) {
         existingMatches.set(doc.id, doc.data());
     });
 
-    // Processar todas as rodadas em paralelo
     const roundPromises = [];
     
     for (let round = start; round <= end; round++) {
@@ -25,8 +23,6 @@ export async function syncMultipleRounds(start: number, end: number) {
 
 async function processRound(round: number, existingMatches: Map<string, any>) {
     const partidas = await getCartolaMatches(round);
-    
-    // Usar batch operations para reduzir operações no Firestore
     const batch = writeBatch(db);
     
     for (const partida of partidas) {
@@ -42,6 +38,7 @@ async function processRound(round: number, existingMatches: Map<string, any>) {
             status_cronometro_tr: partida.status_cronometro_tr,
             status_transmissao_tr: partida.status_transmissao_tr,
             periodo_tr: partida.periodo_tr,
+            inicio_cronometro_tr: partida.inicio_cronometro_tr,
         }, { merge: true });
     }
     

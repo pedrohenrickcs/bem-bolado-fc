@@ -1,4 +1,5 @@
 import { Clock } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Progress } from "~/components/ui/progress";
 import type { Match } from "~/types.ts/MatchesByRound";
@@ -8,63 +9,59 @@ import { VoteActions } from "./MatchCard/components/VoteActions";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 
-function extractMinutes(cronometro: string): string {
-  if (!cronometro) return "";
+function extractMinutes(inicio: string): string {
+  const inicioDate = new Date(inicio);
+  const agora = new Date();
+  const diffMs = agora.getTime() - inicioDate.getTime();
+  const diffMin = Math.floor(diffMs / 1000 / 60);
 
-  // Caso venha tipo 'PT34M12S' (ISO 8601)
-  const isoMatch = cronometro.match(/PT(\d+)M/);
-  if (isoMatch) return `${isoMatch[1]} min`;
-
-  // Caso venha tipo '00:34:12'
-  const timeMatch = cronometro.match(/(\d+):(\d+):(\d+)/);
-  if (timeMatch) return `${parseInt(timeMatch[2], 10)} min`;
-
-  // Caso venha só um número (ex: segundos ou milissegundos)
-  const numberMatch = cronometro.match(/^\d+$/);
-  if (numberMatch) {
-    const totalSeconds = parseInt(cronometro, 10);
-    const minutes = Math.floor(totalSeconds / 60);
-    return `${minutes} min`;
-  }
-
-  // Fallback: tenta capturar qualquer número
-  const fallback = cronometro.match(/\d+/);
-  if (fallback) return `${fallback[0]} min`;
-
-  return "";
+  return `${diffMin} min`;
 }
 
-function getPeriodoLabel(periodo?: string): string {
-  if (!periodo) return "";
-
+function getPeriodLabel(periodo: string): string {
   switch (periodo) {
     case "PRIMEIRO_TEMPO":
       return "1º tempo";
     case "SEGUNDO_TEMPO":
       return "2º tempo";
-    case "INTERVALO":
+    case "PAUSADO":
       return "Intervalo";
-    case "POS_JOGO":
-      return "Pós-jogo";
-    case "PRE_JOGO":
-      return "Pré-jogo";
+    case "CRIADA":
+      return "Começa em breve";
+    case "ENCERRADA":
+      return "Transmissão encerrada";
     default:
       return "";
   }
 }
 
 export function MatchCard({ match, userId }: { match: Match; userId: string }) {
-  //   console.log("match", match);
   const userVote = match.votes?.[userId];
   const { tally } = computeVotes(match.votes ?? {});
   const percentages = getPercentages(tally);
   const isClosed = new Date(match.date).getTime() <= Date.now();
+  const [minutos, setMinutos] = useState("");
 
-  //   console.log({
-  //     status_transmissao_tr: match.status_transmissao_tr,
-  //     status_cronometro_tr: match.status_cronometro_tr,
-  //     periodo_tr: match.periodo_tr,
-  //   });
+  useEffect(() => {
+    if (
+      match.status_transmissao_tr === "EM_ANDAMENTO" &&
+      match.status_cronometro_tr === "INICIADO" &&
+      match.inicio_cronometro_tr !== ""
+    ) {
+      const update = () =>
+        setMinutos(extractMinutes(match.inicio_cronometro_tr ?? ""));
+      update();
+
+      const interval = setInterval(update, 60 * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [match]);
+
+  console.info({
+    status_transmissao_tr: match.status_transmissao_tr,
+    status_cronometro_tr: match.status_cronometro_tr,
+    periodo_tr: match.periodo_tr,
+  });
 
   return (
     <Card className="bg-card shadow-sm border rounded-xl relative">
@@ -93,11 +90,11 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
               variant="outline"
               className="text-[11px] px-2 text-muted-foreground text-center"
             >
-              {match.status_transmissao_tr === "EM_ANDAMENTO" ? (
+              {minutos ? (
                 <>
-                  {extractMinutes(match.status_cronometro_tr as string)}
+                  {minutos}
                   {match.periodo_tr &&
-                    `${getPeriodoLabel(match.periodo_tr as string)}`}
+                    `${getPeriodLabel(match.periodo_tr as string)}`}
                 </>
               ) : (
                 "VS"
@@ -122,11 +119,11 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
             </div>
           )}
 
-        {match.status_transmissao_tr === "ENCERRADA" && (
-          <span className="text-xs text-muted-foreground italic flex justify-center">
-            Transmissão encerrada
-          </span>
-        )}
+        {/* {match.status_transmissao_tr === "ENCERRADA" && ( */}
+        <span className="text-xs text-muted-foreground italic flex justify-center">
+          {getPeriodLabel(match.status_transmissao_tr as string)}
+        </span>
+        {/* )} */}
 
         <div className="space-y-3">
           <VoteProgressBar

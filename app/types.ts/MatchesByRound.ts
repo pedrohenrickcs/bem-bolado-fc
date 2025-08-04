@@ -15,10 +15,10 @@ export interface Match {
   placar_oficial_visitante?: number | null
   status_cronometro_tr?: string | number | null
   status_transmissao_tr?: string
+  inicio_cronometro_tr?: string
   periodo_tr?: number | string
   surname_away?: string | null
   surname_home?: string | null
-  
 }
 
 export type MatchesByRound = Record<number, Match[]>;

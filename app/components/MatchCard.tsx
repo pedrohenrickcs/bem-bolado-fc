@@ -54,7 +54,7 @@ function getPeriodoLabel(periodo?: string): string {
 }
 
 export function MatchCard({ match, userId }: { match: Match; userId: string }) {
-  console.log("match", match);
+  //   console.log("match", match);
   const userVote = match.votes?.[userId];
   const { tally } = computeVotes(match.votes ?? {});
   const percentages = getPercentages(tally);

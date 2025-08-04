@@ -20,20 +20,33 @@ export default function Home() {
     displayName: string;
   }>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [syncLoading, setSyncLoading] = useState(false);
   const [matchesByRound, setMatchesByRound] = useState<MatchesByRound>({});
   const [selectedRound, setSelectedRound] = useState<number>(18);
   const [showPopularVotes, setShowPopularVotes] = useState(false);
 
   useEffect(() => {
     async function checkAndSync() {
-      const snapshot = await getDocs(collection(db, "matches"));
-      const hasMatches = !snapshot.empty;
+      try {
+        const snapshot = await getDocs(collection(db, "matches"));
 
-      if (!hasMatches) {
+        setSyncLoading(true);
+        // Executar sincronização em background sem bloquear a UI
         const { syncMultipleRounds } = await import(
           "~/lib/syncCartolaToFirestore"
         );
-        await syncMultipleRounds(18, 21);
+
+        // Executar sem await para não bloquear
+        syncMultipleRounds(18, 21)
+          .then(() => {
+            setSyncLoading(false);
+          })
+          .catch((error) => {
+            console.error("Erro na sincronização:", error);
+            setSyncLoading(false);
+          });
+      } catch (error) {
+        console.error("Erro ao verificar partidas:", error);
       }
     }
 
@@ -97,6 +110,12 @@ export default function Home() {
         user={{ name: user.displayName, email: user.email }}
         onLogout={() => signOut(auth)}
       />
+
+      {syncLoading && (
+        <div className="fixed top-0 left-0 right-0 bg-blue-500 text-white text-center py-2 z-50">
+          🔄 Sincronizando dados das partidas...
+        </div>
+      )}
 
       <Button
         onClick={() => setShowPopularVotes(true)}

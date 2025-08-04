@@ -1,29 +1,49 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
 import { getCartolaMatches } from "./apiCartola";
 import { db } from "./firebase";
 
 export async function syncMultipleRounds(start: number, end: number) {
+    // Buscar todos os documentos existentes de uma vez
+    const existingMatchesSnapshot = await getDocs(collection(db, "matches"));
+    const existingMatches = new Map();
+    
+    existingMatchesSnapshot.forEach(doc => {
+        existingMatches.set(doc.id, doc.data());
+    });
+
+    // Processar todas as rodadas em paralelo
+    const roundPromises = [];
+    
     for (let round = start; round <= end; round++) {
-        const partidas = await getCartolaMatches(round);
-
-        for (const partida of partidas) {
-        const ref = doc(db, "matches", partida.id);
-        const snapshot = await getDoc(ref);
-
-        const existingData = snapshot.exists() ? snapshot.data() : {};
-
-        await setDoc(ref, {
-        ...partida,
-        round,
-        votes: existingData.votes ?? {},
-        placar_oficial_mandante: partida.placar_oficial_mandante ?? null,
-        placar_oficial_visitante: partida.placar_oficial_visitante ?? null,
-        status_cronometro_tr: partida.status_cronometro_tr ?? "",
-        status_transmissao_tr: partida.status_transmissao_tr ?? "",
-        periodo_tr: partida.periodo_tr ?? "",
-        }, { merge: true });
+        roundPromises.push(processRound(round, existingMatches));
     }
+    
+    await Promise.all(roundPromises);
+    
+    console.log("Todas as rodadas sincronizadas!");
 }
 
- console.log("Todas as rodadas sincronizadas!");
+async function processRound(round: number, existingMatches: Map<string, any>) {
+    const partidas = await getCartolaMatches(round);
+    
+    // Usar batch operations para reduzir operações no Firestore
+    const batch = writeBatch(db);
+    
+    for (const partida of partidas) {
+        const ref = doc(db, "matches", partida.id);
+        const existingData = existingMatches.get(partida.id) || {};
+        
+        batch.set(ref, {
+            ...partida,
+            round,
+            votes: existingData.votes ?? {},
+            placar_oficial_mandante: partida.placar_oficial_mandante,
+            placar_oficial_visitante: partida.placar_oficial_visitante,
+            status_cronometro_tr: partida.status_cronometro_tr,
+            status_transmissao_tr: partida.status_transmissao_tr,
+            periodo_tr: partida.periodo_tr,
+        }, { merge: true });
+    }
+    
+    await batch.commit();
 }

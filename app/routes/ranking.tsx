@@ -114,13 +114,12 @@ export default function Leaderboard() {
 
   return (
     <div className="flex flex-col justify-between min-h-screen bg-gradient-to-br from-emerald-50 via-yellow-50 to-blue-50">
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto px-4 py-12 w-full overflow-hidden">
         <h1 className="text-3xl font-bold mb-8 text-center">
           🏆 Ranking Bem Bolado FC
         </h1>
-
-        <div className="overflow-x-auto rounded-lg shadow bg-white">
-          <table className="min-w-full border border-border text-sm">
+        <div className="w-full overflow-x-auto rounded-lg shadow bg-white">
+          <table className="min-w-[700px] w-full border border-border text-sm">
             <thead className="bg-muted text-xs uppercase tracking-wider">
               <tr>
                 <th className="px-4 py-3 text-left">#</th>

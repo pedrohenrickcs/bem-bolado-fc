@@ -1,5 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 
 import { Footer } from "~/components/Footer";
@@ -13,6 +14,14 @@ import { auth, db } from "~/lib/firebase";
 import type { Match, MatchesByRound } from "~/types.ts/MatchesByRound";
 import groupMatchesByRound from "~/utils/groupMatchesByRound";
 
+const fetchMatches = async () => {
+  const snapshot = await getDocs(collection(db, "matches"));
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Match[];
+};
+
 export default function Home() {
   const [user, setUser] = useState<null | {
     uid: string;
@@ -21,7 +30,6 @@ export default function Home() {
   }>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [syncLoading, setSyncLoading] = useState(false);
-  const [matchesByRound, setMatchesByRound] = useState<MatchesByRound>({});
   const [selectedRound, setSelectedRound] = useState<number>(18);
   const [showPopularVotes, setShowPopularVotes] = useState(false);
 
@@ -70,16 +78,46 @@ export default function Home() {
     });
   }, []);
 
-  useEffect(() => {
-    return onSnapshot(collection(db, "matches"), (snapshot) => {
-      const allMatches = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Match[];
+  const { data: matches, isLoading: matchesLoading } = useQuery({
+    queryKey: ["matches"],
+    queryFn: fetchMatches,
+    staleTime: 60 * 1000, // 1 minuto "fresco"
+    refetchInterval: 60 * 1000, // atualiza a cada 1min
+  });
 
-      setMatchesByRound(groupMatchesByRound(allMatches));
-    });
-  }, []);
+  //   useEffect(() => {
+  //     return onSnapshot(collection(db, "matches"), (snapshot) => {
+  //       const allMatches = snapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       })) as Match[];
+
+  //       setMatchesByRound(groupMatchesByRound(allMatches));
+  //     });
+  //   }, []);
+
+  useEffect(() => {
+    const sync = async () => {
+      if (!matches || matches.length === 0) {
+        setSyncLoading(true);
+        const { syncMultipleRounds } = await import(
+          "~/lib/syncCartolaToFirestore"
+        );
+
+        syncMultipleRounds(18, 21)
+          .then(() => setSyncLoading(false))
+          .catch((error) => {
+            console.error("Erro na sincronização:", error);
+            setSyncLoading(false);
+          });
+      }
+    };
+    sync();
+  }, [matches]);
+
+  const matchesByRound: MatchesByRound = useMemo(() => {
+    return groupMatchesByRound(matches ?? []);
+  }, [matches]);
 
   const rounds = useMemo(() => {
     return Object.keys(matchesByRound)
@@ -102,7 +140,7 @@ export default function Home() {
 
   if (!user) return <Login />;
 
-  const matches = matchesByRound[selectedRound] || [];
+  const currentMatches = matchesByRound[selectedRound] || [];
 
   return (
     <div className="flex flex-col justify-between min-h-screen bg-gradient-to-br from-emerald-50 via-yellow-50 to-blue-50">
@@ -153,9 +191,9 @@ export default function Home() {
         </div>
       </div>
 
-      {matches.length > 0 ? (
+      {currentMatches.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto px-4 mb-16">
-          {matches.map((match) => (
+          {currentMatches.map((match) => (
             <MatchCard key={match.id} match={match} userId={user.uid} />
           ))}
         </div>

@@ -141,7 +141,7 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
                 {match.placar_oficial_visitante}
               </div>
 
-              {match.periodo_tr !== "POS_JOGO" && (
+              {match.status_transmissao_tr === "EM_ANDAMENTO" && (
                 <div className="match-bar-container">
                   <div className="match-bar" />
                 </div>

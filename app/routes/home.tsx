@@ -121,18 +121,14 @@ export default function Home() {
 
   const currentMatches = matchesByRound[selectedRound] || [];
 
+  //   console.log(syncLoading);
+
   return (
     <div className="flex flex-col justify-between min-h-screen bg-gradient-to-br from-emerald-50 via-yellow-50 to-blue-50">
       <Header
         user={{ name: user.displayName, email: user.email }}
         onLogout={() => signOut(auth)}
       />
-
-      {syncLoading && (
-        <div className="fixed top-0 left-0 right-0 bg-blue-500 text-white text-center py-2 z-50">
-          🔄 Sincronizando dados das partidas...
-        </div>
-      )}
 
       <Button
         onClick={() => setShowPopularVotes(true)}

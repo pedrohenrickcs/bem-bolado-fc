@@ -32,7 +32,7 @@ function getPeriodLabel(period: string): string {
       return "1º tempo";
     case "SEGUNDO_TEMPO":
       return "2º tempo";
-    case "PAUSADO":
+    case "INTERVALO":
       return "Intervalo";
     case "CRIADA":
       return "Começa em breve";
@@ -121,9 +121,9 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
             >
               {elapsedTime ? (
                 <>
-                  {elapsedTime}{" "}
+                  {match.periodo_tr !== "INTERVALO" && `${elapsedTime} - `}
                   {match.periodo_tr &&
-                    ` - ${getPeriodLabel(match.periodo_tr as string)}`}
+                    `${getPeriodLabel(match.periodo_tr as string)}`}
                 </>
               ) : (
                 "VS"

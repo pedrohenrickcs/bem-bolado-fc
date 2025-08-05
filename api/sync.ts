@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { syncMultipleRounds } from '~/lib/syncCartolaToFirestore';
+import { syncMultipleRounds } from '../app/lib/syncCartolaToFirestore';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {

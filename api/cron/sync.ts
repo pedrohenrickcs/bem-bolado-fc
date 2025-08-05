@@ -1,25 +1,19 @@
-export const config = {
-  runtime: "edge", // ou "node" se preferir
-};
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-export default async function handler(req: Request) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
-    return new Response("Método não permitido", { status: 405 });
+    return res.status(405).json({ message: "Método não permitido" });
   }
 
   try {
-    // Sua função aqui — simular com log por enquanto
     await syncMultipleRounds();
-
-    return new Response("Sync concluído com sucesso!", { status: 200 });
+    return res.status(200).json({ message: "Sync concluído com sucesso!" });
   } catch (err) {
     console.error(err);
-    return new Response("Erro na sincronização", { status: 500 });
+    return res.status(500).json({ message: "Erro na sincronização" });
   }
 }
 
-// Essa seria sua função real que faz o fetch + update
 async function syncMultipleRounds() {
   console.log("Sincronizando rodadas...");
-  // Lógica aqui: fetch em API Cartola, update no Firestore, etc.
 }

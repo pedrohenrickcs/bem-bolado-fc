@@ -1,37 +1,8 @@
 {
-    "version": 2,
-    "functions": {
-        "api/cron/sync.ts": {
-            "runtime": "nodejs20"
-        }
-    },
     "crons": [
         {
-            "path": "/api/cron/sync",
-            "schedule": "0 3 * * *"
-        }
-    ],
-    "builds": [
-        {
-            "src": "vite.config.ts",
-            "use": "@vercel/static-build",
-            "config": {
-                "distDir": "dist"
-            }
-        },
-        {
-            "src": "api/**/*.ts",
-            "use": "@vercel/node"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/api/.*",
-            "dest": "/api/cron/sync.ts"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/index.html"
+            "path": "/api/cron",
+            "schedule": "0 * * * *"
         }
     ]
 }

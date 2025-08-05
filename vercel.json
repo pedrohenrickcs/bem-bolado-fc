@@ -2,11 +2,11 @@
     "cron": [
         {
             "path": "/api/cron/sync",
-            "schedule": "*/5 18-23 * * 4,5,6" // A cada 5 min, das 18h às 23h, de quinta a sábado
+            "schedule": "*/5 18-23 * * 4,5,6"
         },
         {
             "path": "/api/cron/sync",
-            "schedule": "0 4 * * *" // Todos os dias às 4h da manhã
+            "schedule": "0 4 * * *"
         }
     ]
 }

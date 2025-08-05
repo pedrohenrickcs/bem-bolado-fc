@@ -2,7 +2,7 @@
     "version": 2,
     "functions": {
         "api/cron/sync.ts": {
-            "runtime": "edge"
+            "runtime": "nodejs20"
         }
     },
     "crons": [

@@ -9,7 +9,7 @@ import { Login } from "~/components/Login";
 import { MatchCard } from "~/components/MatchCard";
 import PopularVotesDialog from "~/components/PopularVotesDialog";
 import { Button } from "~/components/ui/button";
-import { getAllCartolaMatches } from "~/lib/apiCartola";
+import { getCartolaMatches } from "~/lib/apiCartola";
 import { auth, db } from "~/lib/firebase";
 import type { MatchesByRound } from "~/types.ts/MatchesByRound";
 import groupMatchesByRound from "~/utils/groupMatchesByRound";
@@ -47,7 +47,7 @@ export default function Home() {
 
   const { data: matches } = useQuery({
     queryKey: ["matches", "all"],
-    queryFn: () => getAllCartolaMatches(18, 21),
+    queryFn: () => getCartolaMatches(selectedRound),
     refetchInterval: 60 * 1000,
   });
 

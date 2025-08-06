@@ -1,15 +1,17 @@
 const apiCache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
+const API_URL = import.meta.env.VITE_API_URL || "https://api.cartola.globo.com";
+
 export async function getCartolaMatches(round: number = 1) {
   const cacheKey = `matches_${round}`;
   const cached = apiCache.get(cacheKey);
-  
+
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
     return cached.data;
   }
 
-  const res = await fetch(`/api-cartola/partidas/${round}`);
+  const res = await fetch(`${API_URL}/partidas/${round}`);
   const data = await res.json();
 
   const partidas = data.partidas;

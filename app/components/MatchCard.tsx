@@ -75,7 +75,7 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
           onClick={() => setDialogOpen(true)}
           className="mt-2 cursor-pointer"
         >
-          Ver histórico do confronto
+          Estatísticas dos últimos jogos
         </Button>
       </div>
 
@@ -253,7 +253,7 @@ export function ConfrontationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Ver histórico do confronto</DialogTitle>
+          <DialogTitle>Estatísticas dos últimos jogos</DialogTitle>
         </DialogHeader>
 
         <div className="grid text-sm md:grid-cols-2">

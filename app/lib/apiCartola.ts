@@ -11,9 +11,12 @@ export async function getCartolaMatches(round: number = 1) {
     return cached.data;
   }
 
-  const res = await fetch(`/api-cartola/partidas/${round}`);
-  const data = await res.json();
+  const baseUrl = import.meta.env.DEV
+  ? '/api-cartola' 
+  : '/api/cartola'; 
 
+  const res = await fetch(`${baseUrl}/partidas/${round}`);
+  const data = await res.json();
   const partidas = data.partidas;
   const clubes = data.clubes;
 

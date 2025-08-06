@@ -47,7 +47,7 @@ export default function Home() {
 
   const { data: matches } = useQuery({
     queryKey: ["matches", "all"],
-    queryFn: () => getAllCartolaMatches(1, 38),
+    queryFn: () => getAllCartolaMatches(18, 21),
     refetchInterval: 60 * 1000,
   });
 
@@ -82,7 +82,7 @@ export default function Home() {
         "~/lib/syncCartolaToFirestore"
       );
 
-      syncMultipleRounds(18, 38).catch((error) => {
+      syncMultipleRounds(18, 21).catch((error) => {
         console.error("Erro na sincronização:", error);
       });
     };
@@ -107,7 +107,7 @@ export default function Home() {
   }, [matchesByRound]);
 
   const minRound = rounds[0] ?? 18;
-  const maxRound = rounds[rounds.length - 1] ?? 38;
+  const maxRound = rounds[rounds.length - 1] ?? 21;
 
   useEffect(() => {
     if (rounds.length > 0 && !rounds.includes(selectedRound)) {

@@ -49,3 +49,9 @@ export async function getCartolaMatches(round: number = 1) {
 
   return matchesFormatted;
 }
+
+export async function getAllCartolaMatches(start = 1, end = 38) {
+  const roundsToFetch = Array.from({ length: end - start + 1 }, (_, i) => i + start);
+  const all = await Promise.all(roundsToFetch.map(getCartolaMatches));
+  return all.flat();
+}

@@ -1,13 +1,8 @@
 {
-    "functions": {
-        "api/cartola.ts": {
-            "runtime": "vercel-node@18"
-        }
-    },
     "routes": [
         {
             "src": "/api/cartola/(.*)",
-            "dest": "api/cartola.ts"
+            "dest": "api/cartola.js"
         }
     ]
 }

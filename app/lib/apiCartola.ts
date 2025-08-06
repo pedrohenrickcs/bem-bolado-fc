@@ -11,7 +11,7 @@ export async function getCartolaMatches(round: number = 1) {
     return cached.data;
   }
 
-  const res = await fetch(`${API_URL}/partidas/${round}`);
+  const res = await fetch(`/api-cartola/partidas/${round}`);
   const data = await res.json();
 
   const partidas = data.partidas;

@@ -1,25 +1,14 @@
-export const config = {
-  runtime: "edge",
-};
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req: Request) {
-  const { pathname } = new URL(req.url);
-  const targetPath = pathname.replace("/api/cartola", "");
-
-  const cartolaUrl = `https://api.cartola.globo.com${targetPath}`;
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const { url } = req;
+  const path = url?.replace("/api/cartola", "") ?? "";
 
   try {
-    const response = await fetch(cartolaUrl);
+    const response = await fetch(`https://api.cartola.globo.com${path}`);
     const data = await response.json();
-
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    res.status(200).json(data);
   } catch (err) {
-    return new Response(JSON.stringify({ error: "Erro na Cartola API" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    res.status(500).json({ error: "Erro na Cartola API" });
   }
 }

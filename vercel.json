@@ -1,7 +1,7 @@
 {
     "functions": {
         "api/cartola.ts": {
-            "runtime": "vercel-edge@2.6.0"
+            "runtime": "vercel-node@18"
         }
     },
     "routes": [

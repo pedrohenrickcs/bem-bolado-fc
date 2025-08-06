@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { Footer } from "~/components/Footer";
 import FullScreenLoader from "~/components/FullScreenLoader";
@@ -9,26 +9,29 @@ import { Login } from "~/components/Login";
 import { MatchCard } from "~/components/MatchCard";
 import PopularVotesDialog from "~/components/PopularVotesDialog";
 import { Button } from "~/components/ui/button";
-import { getCartolaMatches } from "~/lib/apiCartola";
 import { auth, db } from "~/lib/firebase";
-import type { MatchesByRound } from "~/types.ts/MatchesByRound";
+import type { Match, MatchesByRound } from "~/types.ts/MatchesByRound";
 import groupMatchesByRound from "~/utils/groupMatchesByRound";
 
-function useLiveVotesSync() {
+const fetchMatches = async () => {
+  const snapshot = await getDocs(collection(db, "matches"));
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as Match[];
+};
+
+function useLiveMatchSync() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "matches"), (snapshot) => {
-      const votesByMatch: Record<string, any> = {};
+      const matches = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Match[];
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.votes) {
-          votesByMatch[doc.id] = data.votes;
-        }
-      });
-
-      queryClient.setQueryData(["votes"], votesByMatch);
+      queryClient.setQueryData(["matches"], matches);
     });
 
     return () => unsubscribe();
@@ -42,20 +45,9 @@ export default function Home() {
     displayName: string;
   }>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [syncLoading, setSyncLoading] = useState(false);
   const [selectedRound, setSelectedRound] = useState<number>(18);
   const [showPopularVotes, setShowPopularVotes] = useState(false);
-
-  const { data: matches } = useQuery({
-    queryKey: ["matches", "all"],
-    queryFn: () => getCartolaMatches(selectedRound),
-    refetchInterval: 60 * 1000,
-  });
-
-  const { data: votes = {} } = useQuery({
-    queryKey: ["votes"],
-    queryFn: async () => ({}),
-    staleTime: Infinity,
-  });
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (currentUser) => {
@@ -74,31 +66,37 @@ export default function Home() {
     });
   }, []);
 
-  useLiveVotesSync();
+  useLiveMatchSync();
+
+  const { data: matches } = useQuery({
+    queryKey: ["matches"],
+    queryFn: fetchMatches,
+    staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
+  });
 
   useEffect(() => {
     const sync = async () => {
-      const { syncMultipleRounds } = await import(
-        "~/lib/syncCartolaToFirestore"
-      );
+      if (!matches || matches.length === 0) {
+        setSyncLoading(true);
+        const { syncMultipleRounds } = await import(
+          "~/lib/syncCartolaToFirestore"
+        );
 
-      syncMultipleRounds(18, 21).catch((error) => {
-        console.error("Erro na sincronização:", error);
-      });
+        syncMultipleRounds(18, 21)
+          .then(() => setSyncLoading(false))
+          .catch((error) => {
+            console.error("Erro na sincronização:", error);
+            setSyncLoading(false);
+          });
+      }
     };
     sync();
   }, [matches]);
 
   const matchesByRound: MatchesByRound = useMemo(() => {
-    if (!matches) return {};
-
-    const mergedMatches = matches.map((match) => ({
-      ...match,
-      votes: votes[String(match.id) as keyof typeof votes] ?? {},
-    }));
-
-    return groupMatchesByRound(mergedMatches);
-  }, [matches, votes]);
+    return groupMatchesByRound(matches ?? []);
+  }, [matches]);
 
   const rounds = useMemo(() => {
     return Object.keys(matchesByRound)
@@ -107,13 +105,13 @@ export default function Home() {
   }, [matchesByRound]);
 
   const minRound = rounds[0] ?? 18;
-  const maxRound = rounds[rounds.length - 1] ?? 21;
+  const maxRound = rounds[rounds.length - 1] ?? 38;
 
   useEffect(() => {
-    if (rounds.length > 0 && !rounds.includes(selectedRound)) {
+    if (!selectedRound && rounds.length > 0) {
       setSelectedRound(rounds[0]);
     }
-  }, [rounds]);
+  }, [rounds, selectedRound]);
 
   if (authLoading) {
     return <FullScreenLoader message="Verificando autenticação..." />;
@@ -122,6 +120,8 @@ export default function Home() {
   if (!user) return <Login />;
 
   const currentMatches = matchesByRound[selectedRound] || [];
+
+  //   console.log(syncLoading);
 
   return (
     <div className="flex flex-col justify-between min-h-screen bg-gradient-to-br from-emerald-50 via-yellow-50 to-blue-50">
@@ -157,7 +157,7 @@ export default function Home() {
             ← Rodada Anterior
           </Button>
           <Button
-            disabled={selectedRound >= maxRound}
+            disabled={selectedRound === maxRound}
             onClick={() => setSelectedRound((r) => Math.min(r + 1, maxRound))}
             className="cursor-pointer"
           >

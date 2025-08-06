@@ -11,7 +11,7 @@ export async function getCartolaMatches(round: number = 1) {
     return cached.data;
   }
 
-  const res = await fetch(`/api/cartola/partidas/${round}`);
+  const res = await fetch(`/api-cartola/partidas/${round}`);
   const data = await res.json();
 
   const partidas = data.partidas;
@@ -52,7 +52,7 @@ export async function getCartolaMatches(round: number = 1) {
   return matchesFormatted;
 }
 
-export async function getAllCartolaMatches(start = 1, end = 38) {
+export async function getAllCartolaMatches(start = 18, end = 21) {
   const roundsToFetch = Array.from({ length: end - start + 1 }, (_, i) => i + start);
   const all = await Promise.all(roundsToFetch.map(getCartolaMatches));
   return all.flat();

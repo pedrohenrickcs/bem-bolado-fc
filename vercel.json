@@ -1,8 +1,13 @@
 {
-    "crons": [
+    "functions": {
+        "api/cartola.ts": {
+            "runtime": "edge"
+        }
+    },
+    "routes": [
         {
-            "path": "/api/cron",
-            "schedule": "0 19 * * *"
+            "src": "/api/cartola/(.*)",
+            "dest": "api/cartola.ts"
         }
     ]
 }

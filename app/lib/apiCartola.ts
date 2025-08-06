@@ -11,11 +11,7 @@ export async function getCartolaMatches(round: number = 1) {
     return cached.data;
   }
 
-  const baseUrl = import.meta.env.DEV
-  ? '/api-cartola' 
-  : '/api/cartola'; 
-
-  const res = await fetch(`https://corsproxy.io/?https://api.cartola.globo.com/partidas/${round}`);
+  const res = await fetch(`https://corsproxy.io/?${API_URL}/partidas/${round}`);
   const data = await res.json();
   const partidas = data.partidas;
   const clubes = data.clubes;

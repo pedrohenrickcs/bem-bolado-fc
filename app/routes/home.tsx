@@ -42,7 +42,7 @@ export default function Home() {
     displayName: string;
   }>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [selectedRound, setSelectedRound] = useState<number>(18);
+  const [selectedRound, setSelectedRound] = useState<number>(19);
   const [showPopularVotes, setShowPopularVotes] = useState(false);
 
   const { data: matches } = useQuery({

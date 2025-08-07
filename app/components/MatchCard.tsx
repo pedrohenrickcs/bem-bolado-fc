@@ -86,6 +86,8 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
         awayHistory={match.confronto_visitante ?? ""}
         homeName={match.home_team}
         awayName={match.away_team}
+        homeLogo={match.home_logo}
+        awayLogo={match.away_logo}
       />
 
       <CardHeader className="pb-1">
@@ -181,17 +183,27 @@ export function MatchCard({ match, userId }: { match: Match; userId: string }) {
   );
 }
 
-function TeamInfo({ name, logo }: { name: string; logo?: string }) {
+function TeamInfo({
+  name,
+  logo,
+  width = "w-6",
+  height = "h-6",
+}: {
+  name?: string;
+  logo?: string;
+  width?: string;
+  height?: string;
+}) {
   return (
     <div className="flex items-center gap-2 text-muted-foreground">
-      <Avatar className="h-6 w-6 text-xs">
+      <Avatar className={`${width} ${height} text-xs`}>
         {logo ? (
-          <img src={logo} alt={name} className="h-6 w-6 rounded-full" />
+          <img src={logo} alt={name} className="rounded-full" />
         ) : (
-          <AvatarFallback>{getInitial(name)}</AvatarFallback>
+          <AvatarFallback>{getInitial(name ?? "")}</AvatarFallback>
         )}
       </Avatar>
-      <span className="text-sm">{name}</span>
+      {name && <span className="text-sm">{name}</span>}
     </div>
   );
 }
@@ -231,6 +243,18 @@ function countResults(arr: string[]): ResultCount {
   );
 }
 
+type Stats = { w: number; d: number; l: number };
+type Props = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  homeHistory: string[];
+  awayHistory: string[];
+  homeName: string;
+  awayName: string;
+  homeLogo?: string;
+  awayLogo?: string;
+};
+
 export function ConfrontationDialog({
   open,
   onOpenChange,
@@ -238,66 +262,89 @@ export function ConfrontationDialog({
   awayHistory,
   homeName,
   awayName,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  homeHistory: string;
-  awayHistory: string;
-  homeName: string;
-  awayName: string;
-}) {
-  const homeStats = countResults(Array.isArray(homeHistory) ? homeHistory : []);
-  const awayStats = countResults(Array.isArray(awayHistory) ? awayHistory : []);
+  homeLogo,
+  awayLogo,
+}: Props) {
+  const homeStats = countResults(homeHistory ?? []);
+  const awayStats = countResults(awayHistory ?? []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="bg-white rounded-2xl shadow-xl max-w-lg w-full">
         <DialogHeader>
-          <DialogTitle>Estatísticas dos últimos jogos</DialogTitle>
+          <DialogTitle className="text-center text-lg mb-4">
+            Estatísticas dos últimos jogos
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="grid text-sm md:grid-cols-2">
-          <div>
-            <h2 className="text-base font-semibold mb-2 text-center">
-              {homeName} (mandante)
-            </h2>
-            <ul className="space-y-1">
-              <li className="flex items-center justify-center gap-2">
-                <ThumbsUp className="w-4 h-4 text-green-600" />
-                {homeStats.w} Vitórias
-              </li>
-              <li className="flex items-center justify-center gap-2">
-                <Handshake className="w-4 h-4 text-yellow-500" />
-                {homeStats.d} Empates
-              </li>
-              <li className="flex items-center justify-center gap-2">
-                <ThumbsDown className="w-4 h-4 text-red-600" />
-                {homeStats.l} Derrotas
-              </li>
-            </ul>
+        <div className="grid grid-cols-2 gap-6 items-center">
+          {/* HOME TEAM */}
+          <div className="flex flex-col items-center">
+            <Avatar className="w-12 h-16 mb-2">
+              {homeLogo ? (
+                <TeamInfo logo={homeLogo} width="w-12" height="h-12" />
+              ) : (
+                <AvatarFallback>{getInitial(homeName)}</AvatarFallback>
+              )}
+            </Avatar>
+            <div className="text-base font-semibold text-center mb-4">
+              {homeName}
+            </div>
+            <StatList stats={homeStats} />
           </div>
 
-          <div>
-            <h2 className="text-base font-semibold mb-2 text-center">
-              {awayName} (Visitante)
-            </h2>
-            <ul className="space-y-1">
-              <li className="flex items-center gap-2 justify-center">
-                <ThumbsUp className="w-4 h-4 text-green-600" />
-                {awayStats.w} Vitórias
-              </li>
-              <li className="flex items-center gap-2 justify-center">
-                <Handshake className="w-4 h-4 text-yellow-500" />
-                {awayStats.d} Empates
-              </li>
-              <li className="flex items-center gap-2 justify-center">
-                <ThumbsDown className="w-4 h-4 text-red-600" />
-                {awayStats.l} Derrotas
-              </li>
-            </ul>
+          {/* AWAY TEAM */}
+          <div className="flex flex-col items-center">
+            <Avatar className="w-12 h-16 mb-2">
+              {awayLogo ? (
+                <TeamInfo logo={awayLogo} width="w-12" height="h-12" />
+              ) : (
+                <AvatarFallback>{getInitial(awayName)}</AvatarFallback>
+              )}
+            </Avatar>
+            <div className="text-base font-semibold text-center mb-4">
+              {awayName}
+            </div>
+            <StatList stats={awayStats} />
           </div>
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function StatList({ stats }: { stats: Stats }) {
+  const items = [
+    {
+      label: "Vitórias",
+      value: stats.w,
+      icon: ThumbsUp,
+      color: "bg-green-50 text-green-600",
+    },
+    {
+      label: "Empates",
+      value: stats.d,
+      icon: Handshake,
+      color: "bg-yellow-50 text-yellow-600",
+    },
+    {
+      label: "Derrotas",
+      value: stats.l,
+      icon: ThumbsDown,
+      color: "bg-red-50 text-red-600",
+    },
+  ];
+  return (
+    <ul className="space-y-2 w-full">
+      {items.map(({ label, value, icon: Icon, color }) => (
+        <li key={label} className={`flex items-center justify-center gap-3`}>
+          <span className={`rounded-full p-2 ${color} shadow`}>
+            <Icon className="w-5 h-5" />
+          </span>
+          <span className="font-bold text-base">{value}</span>
+          <span className="text-sm">{label}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

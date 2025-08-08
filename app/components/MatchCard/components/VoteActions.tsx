@@ -36,8 +36,8 @@ export function VoteActions({ match, userId, currentVote, isClosed }: Props) {
         ))}
       </div>
 
-      {currentVote && (
-        <div className="mt-2">
+      <div className="mt-2 h-9">
+        {currentVote && (
           <Button
             onClick={resetVote}
             disabled={isVoting || isClosed}
@@ -45,8 +45,8 @@ export function VoteActions({ match, userId, currentVote, isClosed }: Props) {
           >
             Cancelar voto
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 }

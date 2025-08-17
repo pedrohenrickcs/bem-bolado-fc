@@ -49,6 +49,13 @@ export function Header({ user, onLogout }: Props) {
             <BarChart2 className="w-4 h-4" />
             Ranking
           </Link>
+          <Link
+            to="/apostasy"
+            className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer"
+          >
+            <BarChart2 className="w-4 h-4" />
+            Apostas
+          </Link>
           <button className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
             <History className="w-4 h-4" />
             Histórico
